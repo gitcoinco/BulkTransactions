@@ -1,0 +1,22 @@
+{
+  "name": "gc-bulk-checkout-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for Gitcoin grants bulk checkout functionality",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitcoinco/BulkTransactions.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gitcoinco/BulkTransactions/issues"
+  },
+  "homepage": "https://github.com/gitcoinco/BulkTransactions#readme",
+  "devDependencies": {
+    "@openzeppelin/cli": "^2.8.2"
+  }
+}
