@@ -4,7 +4,8 @@
   "description": "Smart contracts for Gitcoin grants bulk checkout functionality",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "npx oz compile",
+    "test": "npx oz compile && mocha --exit --timeout 0 test/*-test.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,10 @@
   },
   "homepage": "https://github.com/gitcoinco/BulkTransactions#readme",
   "devDependencies": {
-    "@openzeppelin/cli": "^2.8.2"
+    "@openzeppelin/cli": "^2.8.2",
+    "@openzeppelin/test-environment": "^0.1.4",
+    "@openzeppelin/test-helpers": "^0.5.5",
+    "chai": "^4.2.0",
+    "mocha": "^7.1.1"
   }
 }
