@@ -25,11 +25,11 @@ const takeSnapshot = () => new Promise((resolve, reject) => {
   });
 });
 
-const revertToSnapShot = (id) => new Promise((resolve, reject) => {
+const revertToSnapShot = (stateId) => new Promise((resolve, reject) => {
   web3.currentProvider.send({
     jsonrpc: '2.0',
     method: 'evm_revert',
-    params: [id],
+    params: [stateId],
     id: new Date().getTime(),
   }, (err, result) => {
     if (err) return reject(err);
@@ -75,6 +75,10 @@ describe('BulkCheckout', () => {
   it('should see the deployed BulkCheckout contract', async () => {
     expect(bulkCheckout.address.startsWith('0x')).to.be.true;
     expect(bulkCheckout.address.length).to.equal(42);
+  });
+
+  it('sets the owner upon deployment', async () => {
+    expect(await bulkCheckout.owner()).to.equal(owner);
   });
 
   // ====================================== Single Donations =======================================
@@ -149,7 +153,7 @@ describe('BulkCheckout', () => {
     expect(fromWei(await usdc.balanceOf(grant3))).to.equal('25');
   });
 
-  // ======================================= Error Handling ========================================
+  // =================================== Donation Error Handling ===================================
   it('reverts if too much ETH is sent', async () => {
     const donations = [
       { token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 },
@@ -173,6 +177,59 @@ describe('BulkCheckout', () => {
   it('does not let ETH be transferred to the contract', async () => {
     await expectRevert.unspecified(
       web3.eth.sendTransaction({ to: bulkCheckout.address, from: user, value: toWei('5') }),
+    );
+  });
+
+  // ======================================== Admin Actions ========================================
+  it('lets ownership be transferred by the owner', async () => {
+    expect(await bulkCheckout.owner()).to.equal(owner);
+    await bulkCheckout.transferOwnership(user, { from: owner });
+    expect(await bulkCheckout.owner()).to.equal(user);
+  });
+
+  it('does not let anyone except the owner transfer ownership', async () => {
+    await expectRevert(
+      bulkCheckout.transferOwnership(user, { from: user }),
+      'Ownable: caller is not the owner',
+    );
+  });
+
+  it('lets the owner pause and unpause the contract', async () => {
+    // Contract not paused. Make sure we cannot unpause
+    expect(await bulkCheckout.paused()).to.equal(false);
+    await expectRevert(
+      bulkCheckout.unpause({ from: owner }),
+      'Pausable: not paused',
+    );
+
+    // Pause it and make sure we can no longer send donations
+    await bulkCheckout.pause({ from: owner });
+    expect(await bulkCheckout.paused()).to.equal(true);
+    const donations = [{ token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 }];
+    await expectRevert(
+      bulkCheckout.donate(donations, { from: user, value: toWei('5') }),
+      'Pausable: paused',
+    );
+
+    // Unpause and make sure everything still works
+    await bulkCheckout.unpause({ from: owner });
+    await bulkCheckout.donate(donations, { from: user, value: toWei('5') });
+  });
+
+  it('does not let anyone except the owner pause the contract', async () => {
+    // Contract not paused. Make sure user cannot pause it
+    expect(await bulkCheckout.paused()).to.equal(false);
+    await expectRevert(
+      bulkCheckout.pause({ from: user }),
+      'Ownable: caller is not the owner',
+    );
+
+    // Pause contract and make sure user cannot unpause it
+    await bulkCheckout.pause({ from: owner });
+    expect(await bulkCheckout.paused()).to.equal(true);
+    await expectRevert(
+      bulkCheckout.unpause({ from: user }),
+      'Ownable: caller is not the owner',
     );
   });
 });
