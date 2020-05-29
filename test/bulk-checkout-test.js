@@ -6,6 +6,7 @@ const { expect } = require('chai');
 
 const BulkCheckout = contract.fromArtifact('BulkCheckout');
 const TestToken = contract.fromArtifact('TestToken');
+const SelfDestruct = contract.fromArtifact('SelfDestruct');
 
 const MAX_UINT256 = constants.MAX_UINT256.toString();
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
@@ -38,7 +39,7 @@ const revertToSnapShot = (stateId) => new Promise((resolve, reject) => {
 });
 
 describe('BulkCheckout', () => {
-  const [owner, user, grant1, grant2, grant3] = accounts;
+  const [owner, user, grant1, grant2, grant3, withdrawal] = accounts;
 
   let stateId;
   let bulkCheckout;
@@ -231,5 +232,56 @@ describe('BulkCheckout', () => {
       bulkCheckout.unpause({ from: user }),
       'Ownable: caller is not the owner',
     );
+  });
+
+  it('lets only the owner recover stray tokens accidentally sent to the contract', async () => {
+    // Send Dai to the contract
+    dai.mint(bulkCheckout.address, toWei('10'));
+    expect(fromWei(await dai.balanceOf(bulkCheckout.address))).to.equal('10');
+
+    // Make sure user cannot withdrawn the tokens
+    await expectRevert(
+      bulkCheckout.withdrawToken(dai.address, withdrawal, { from: user }),
+      'Ownable: caller is not the owner',
+    );
+
+    // Make sure owner can withdraw
+    expect(fromWei(await dai.balanceOf(withdrawal))).to.equal('0');
+    const receipt = await bulkCheckout.withdrawToken(dai.address, withdrawal, { from: owner });
+    expect(fromWei(await dai.balanceOf(withdrawal))).to.equal('10');
+    expectEvent(receipt, 'TokenWithdrawn', {
+      token: dai.address,
+      amount: toWei('10'),
+      dest: withdrawal,
+    });
+  });
+
+  it('lets only the owner recover Ether forcibly sent to the contract', async () => {
+    // Deploy our self-destruct contract
+    const selfDestruct = await SelfDestruct.new();
+
+    // Send ETH to that contract
+    await web3.eth.sendTransaction({ to: selfDestruct.address, from: user, value: toWei('5') });
+    expect(fromWei(await balance.current(selfDestruct.address))).to.equal('5');
+
+    // Self-destruct it
+    await selfDestruct.forceEther(bulkCheckout.address, { from: user });
+    expect(fromWei(await balance.current(bulkCheckout.address))).to.equal('5');
+
+    // Make sure user cannot withdrawn the ETH
+    await expectRevert(
+      bulkCheckout.withdrawEther(withdrawal, { from: user }),
+      'Ownable: caller is not the owner',
+    );
+
+    // Make sure owner can withdraw
+    expect(fromWei(await balance.current(withdrawal))).to.equal('100'); // initial balance
+    const receipt = await bulkCheckout.withdrawEther(withdrawal, { from: owner });
+    expect(fromWei(await balance.current(withdrawal))).to.equal('105');
+    expectEvent(receipt, 'TokenWithdrawn', {
+      token: ETH_ADDRESS,
+      amount: toWei('5'),
+      dest: withdrawal,
+    });
   });
 });

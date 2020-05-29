@@ -32,6 +32,11 @@ contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
   }
 
   /**
+   * @dev Emitted when a token or ETH is withdrawn from the contract
+   */
+  event TokenWithdrawn(address indexed token, uint256 indexed amount, address indexed dest);
+
+  /**
    * @notice Bulk gitcoin grant donations
    * @dev We assume all token approvals were already executed
    * @param _donations Array of donation structs
@@ -60,6 +65,28 @@ contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
 
     // Revert if the wrong amount of ETH was sent
     require(msg.value == _ethDonationTotal, "BulkCheckout: Too much ETH sent");
+  }
+
+  /**
+   * @notice Transfers all tokens of the input adress to the recipient. This is
+   * useful tokens are accidentally sent to this contrasct
+   * @param _tokenAddress address of token to send
+   * @param _dest destination address to send tokens to
+   */
+  function withdrawToken(address _tokenAddress, address _dest) external onlyOwner {
+    uint256 _balance = IERC20(_tokenAddress).balanceOf(address(this));
+    emit TokenWithdrawn(_tokenAddress, _balance, _dest);
+    SafeERC20.safeTransfer(IERC20(_tokenAddress), _dest, _balance);
+  }
+
+  /**
+   * @notice Transfers all Ether to the specified address
+   * @param _dest destination address to send ETH to
+   */
+  function withdrawEther(address payable _dest) external onlyOwner {
+    uint256 _balance = address(this).balance;
+    emit TokenWithdrawn(ETH_TOKEN_PLACHOLDER, _balance, _dest);
+    _dest.sendValue(_balance);
   }
 
   /**
