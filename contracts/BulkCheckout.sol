@@ -38,8 +38,8 @@ contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
   event DonationSent(
     address indexed token,
     uint256 indexed amount,
-    address indexed dest,
-    address donor
+    address dest,
+    address indexed donor
   );
 
   /**
