@@ -8,9 +8,11 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 
 contract BulkCheckout {
+  using Address for address payable;
   /**
    * @notice Placeholder token address for ETH donations. This address is used in various other
    * projects as a stand-in for ETH
@@ -23,7 +25,7 @@ contract BulkCheckout {
   struct Donation {
     address token; // address of the token to donate
     uint256 amount; // amount of tokens to donate
-    address dest; // grant address
+    address payable dest; // grant address
   }
 
   /**
@@ -31,15 +33,29 @@ contract BulkCheckout {
    * @dev We assume all token approvals were already executed
    * @param _donations Array of donation structs
    */
-  function donate(Donation[] calldata _donations) external {
+  function donate(Donation[] calldata _donations) external payable {
+    // We track total ETH donations to ensure msg.value is exactly correct
+    uint256 _ethDonationTotal = 0;
+
     for (uint256 i = 0; i < _donations.length; i++) {
-      // Execute donation. This method throws on failure, so there is no return value to check
-      SafeERC20.safeTransferFrom(
-        IERC20(_donations[i].token),
-        msg.sender,
-        _donations[i].dest,
-        _donations[i].amount
-      );
+      if (_donations[i].token != ETH_TOKEN_PLACHOLDER) {
+        // Token donation
+        // This method throws on failure, so there is no return value to check
+        SafeERC20.safeTransferFrom(
+          IERC20(_donations[i].token),
+          msg.sender,
+          _donations[i].dest,
+          _donations[i].amount
+        );
+      } else {
+        // ETH donation
+        // See comments in Address.sol for why we use sendValue over transer
+        _donations[i].dest.sendValue(_donations[i].amount);
+        _ethDonationTotal += _donations[i].amount;
+      }
     }
+
+    // Revert if the wrong amount of ETH was sent
+    require(msg.value == _ethDonationTotal, "BulkCheckout: Too much ETH sent");
   }
 }
