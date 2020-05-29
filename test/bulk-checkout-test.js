@@ -54,8 +54,8 @@ describe('BulkCheckout', () => {
     bulkCheckout = await BulkCheckout.new({ from: owner });
 
     // Deploy a few test tokens
-    dai = await TestToken.new('TestToken', 'DAI');
-    usdc = await TestToken.new('TestToken', 'USDC');
+    dai = await TestToken.new('Dai', 'DAI');
+    usdc = await TestToken.new('USD Coin', 'USDC');
 
     // Mint a bunch to the user
     const mintAmount = toWei('100');
