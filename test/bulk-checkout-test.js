@@ -87,17 +87,29 @@ describe('BulkCheckout', () => {
     const donations = [
       { token: dai.address, amount: toWei('5'), dest: grant1 },
     ];
-    await bulkCheckout.donate(donations, { from: user });
+    const receipt = await bulkCheckout.donate(donations, { from: user });
     expect(fromWei(await dai.balanceOf(user))).to.equal('95');
     expect(fromWei(await dai.balanceOf(grant1))).to.equal('5');
+    expectEvent(receipt, 'DonationSent', {
+      token: dai.address,
+      amount: toWei('5'),
+      dest: grant1,
+      donor: user,
+    });
   });
 
   it('lets the user submit only one donation of ETH', async () => {
     const donations = [
       { token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 },
     ];
-    await bulkCheckout.donate(donations, { from: user, value: toWei('5') });
+    const receipt = await bulkCheckout.donate(donations, { from: user, value: toWei('5') });
     expect(fromWei(await balance.current(grant1))).to.equal('105');
+    expectEvent(receipt, 'DonationSent', {
+      token: ETH_ADDRESS,
+      amount: toWei('5'),
+      dest: grant1,
+      donor: user,
+    });
   });
 
   // ======================================= Bulk Donations ========================================
