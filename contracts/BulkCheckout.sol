@@ -33,6 +33,16 @@ contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
   }
 
   /**
+   * @dev Emitted on each donation
+   */
+  event DonationSent(
+    address indexed token,
+    uint256 indexed amount,
+    address indexed dest,
+    address donor
+  );
+
+  /**
    * @dev Emitted when a token or ETH is withdrawn from the contract
    */
   event TokenWithdrawn(address indexed token, uint256 indexed amount, address indexed dest);
@@ -47,6 +57,7 @@ contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
     uint256 _ethDonationTotal = 0;
 
     for (uint256 i = 0; i < _donations.length; i++) {
+      emit DonationSent(_donations[i].token, _donations[i].amount, _donations[i].dest, msg.sender);
       if (_donations[i].token != ETH_TOKEN_PLACHOLDER) {
         // Token donation
         // This method throws on failure, so there is no return value to check
