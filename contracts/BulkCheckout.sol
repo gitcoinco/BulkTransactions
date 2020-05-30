@@ -8,6 +8,7 @@ pragma experimental ABIEncoderV2;
  */
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -17,6 +18,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
   using Address for address payable;
+  using SafeMath for uint256;
   /**
    * @notice Placeholder token address for ETH donations. This address is used in various other
    * projects as a stand-in for ETH
@@ -71,7 +73,7 @@ contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
         // ETH donation
         // See comments in Address.sol for why we use sendValue over transer
         _donations[i].dest.sendValue(_donations[i].amount);
-        _ethDonationTotal += _donations[i].amount;
+        _ethDonationTotal = _ethDonationTotal.add(_donations[i].amount);
       }
     }
 
