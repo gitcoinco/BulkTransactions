@@ -31,5 +31,9 @@
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.52",
     "solhint": "^3.0.0"
+  },
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.0.35",
+    "dotenv": "^8.2.0"
   }
 }
