@@ -12,7 +12,8 @@ Smart contracts for Gitcoin grants bulk checkout functionality
 1. Create a file called `.env` with the following contents:
    ```bash
    INFURA_ID=yourInfuraId
-   MNEMONIC="your mnenomic phrase"
+   MNEMONIC_RINKEBY="your mnemonic for development"
+   MNEMONIC_MAINNET="your mnemonic for production"
    ```
 2. Open `networks.js` and configure the object for the network you want to deploy to
    1. You may want to change the gas price (specified in wei) if deploying to mainnet
