@@ -4,8 +4,9 @@
   "description": "Smart contracts for Gitcoin grants bulk checkout functionality",
   "main": "index.js",
   "scripts": {
-    "compile": "npx oz compile",
-    "test": "npx oz compile && mocha --exit --timeout 0 test/*-test.js"
+    "compile": "npx oz compile --solc-version 0.6.7 --optimizer off",
+    "deploy": "npm run compile && npx oz deploy --skip-compile",
+    "test": "npm run compile && mocha --exit --timeout 0 test/*-test.js"
   },
   "repository": {
     "type": "git",

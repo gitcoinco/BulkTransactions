@@ -55,8 +55,8 @@ module.exports = {
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
-     // Max line length of 100 characters, except for lines with comments or strings
-     'max-len': ['error', {
+    // Max line length of 100 characters, except for lines with comments or strings
+    'max-len': ['error', {
       code: 100, ignoreComments: true, ignoreTrailingComments: true, ignoreStrings: true,
     }],
   },
