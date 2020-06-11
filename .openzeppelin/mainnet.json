@@ -1,0 +1,14 @@
+{
+  "contracts": {},
+  "solidityLibs": {},
+  "proxies": {
+    "gc-bulk-checkout-contracts/BulkCheckout": [
+      {
+        "address": "0x7d655c57f71464B6f83811C55D84009Cd9f5221C",
+        "kind": "NonProxy",
+        "bytecodeHash": "aa72c526e12a20b26e893c1a828ff1434a94b440aca6d0a3dc70a99d79e94cc8"
+      }
+    ]
+  },
+  "manifestVersion": "2.2"
+}

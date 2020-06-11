@@ -24,7 +24,7 @@ module.exports = {
         process.env.MNEMONIC_MAINNET, `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
       ),
       networkId: 1,
-      gasPrice: 10e9,
+      gasPrice: 35e9, // 35 gwei
       gas: 5e6,
     },
   },
