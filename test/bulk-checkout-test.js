@@ -1,7 +1,5 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const {
-  balance, constants, expectEvent, expectRevert,
-} = require('@openzeppelin/test-helpers');
+const { balance, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const BulkCheckout = contract.fromArtifact('BulkCheckout');
@@ -15,28 +13,36 @@ const { fromWei, toWei } = web3.utils;
 // Define helper function to revert token/ETH balances after each test. This simplifies
 // testing since we no longer have to track balances between tests
 // More info at: https://github.com/trufflesuite/truffle/issues/888 and https://medium.com/fluidity/standing-the-time-of-test-b906fcc374a9
-const takeSnapshot = () => new Promise((resolve, reject) => {
-  web3.currentProvider.send({
-    jsonrpc: '2.0',
-    method: 'evm_snapshot',
-    id: new Date().getTime(),
-  }, (err, snapshotId) => {
-    if (err) return reject(err);
-    return resolve(snapshotId);
+const takeSnapshot = () =>
+  new Promise((resolve, reject) => {
+    web3.currentProvider.send(
+      {
+        jsonrpc: '2.0',
+        method: 'evm_snapshot',
+        id: new Date().getTime(),
+      },
+      (err, snapshotId) => {
+        if (err) return reject(err);
+        return resolve(snapshotId);
+      }
+    );
   });
-});
 
-const revertToSnapShot = (stateId) => new Promise((resolve, reject) => {
-  web3.currentProvider.send({
-    jsonrpc: '2.0',
-    method: 'evm_revert',
-    params: [stateId],
-    id: new Date().getTime(),
-  }, (err, result) => {
-    if (err) return reject(err);
-    return resolve(result);
+const revertToSnapShot = (stateId) =>
+  new Promise((resolve, reject) => {
+    web3.currentProvider.send(
+      {
+        jsonrpc: '2.0',
+        method: 'evm_revert',
+        params: [stateId],
+        id: new Date().getTime(),
+      },
+      (err, result) => {
+        if (err) return reject(err);
+        return resolve(result);
+      }
+    );
   });
-});
 
 describe('BulkCheckout', () => {
   const [owner, user, grant1, grant2, grant3, withdrawal] = accounts;
@@ -84,9 +90,7 @@ describe('BulkCheckout', () => {
 
   // ====================================== Single Donations =======================================
   it('lets the user submit only one donation for a token', async () => {
-    const donations = [
-      { token: dai.address, amount: toWei('5'), dest: grant1 },
-    ];
+    const donations = [{ token: dai.address, amount: toWei('5'), dest: grant1 }];
     const receipt = await bulkCheckout.donate(donations, { from: user });
     expect(fromWei(await dai.balanceOf(user))).to.equal('95');
     expect(fromWei(await dai.balanceOf(grant1))).to.equal('5');
@@ -99,9 +103,7 @@ describe('BulkCheckout', () => {
   });
 
   it('lets the user submit only one donation of ETH', async () => {
-    const donations = [
-      { token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 },
-    ];
+    const donations = [{ token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 }];
     const receipt = await bulkCheckout.donate(donations, { from: user, value: toWei('5') });
     expect(fromWei(await balance.current(grant1))).to.equal('105');
     expectEvent(receipt, 'DonationSent', {
@@ -168,28 +170,24 @@ describe('BulkCheckout', () => {
 
   // =================================== Donation Error Handling ===================================
   it('reverts if too much ETH is sent', async () => {
-    const donations = [
-      { token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 },
-    ];
+    const donations = [{ token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 }];
     await expectRevert(
       bulkCheckout.donate(donations, { from: user, value: toWei('50') }),
-      'BulkCheckout: Too much ETH sent',
+      'BulkCheckout: Too much ETH sent'
     );
   });
 
   it('reverts if too little ETH is sent', async () => {
-    const donations = [
-      { token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 },
-    ];
+    const donations = [{ token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 }];
     await expectRevert(
       bulkCheckout.donate(donations, { from: user, value: toWei('0.5') }),
-      'Address: insufficient balance',
+      'Address: insufficient balance'
     );
   });
 
   it('does not let ETH be transferred to the contract', async () => {
     await expectRevert.unspecified(
-      web3.eth.sendTransaction({ to: bulkCheckout.address, from: user, value: toWei('5') }),
+      web3.eth.sendTransaction({ to: bulkCheckout.address, from: user, value: toWei('5') })
     );
   });
 
@@ -203,17 +201,14 @@ describe('BulkCheckout', () => {
   it('does not let anyone except the owner transfer ownership', async () => {
     await expectRevert(
       bulkCheckout.transferOwnership(user, { from: user }),
-      'Ownable: caller is not the owner',
+      'Ownable: caller is not the owner'
     );
   });
 
   it('lets the owner pause and unpause the contract', async () => {
     // Contract not paused. Make sure we cannot unpause
     expect(await bulkCheckout.paused()).to.equal(false);
-    await expectRevert(
-      bulkCheckout.unpause({ from: owner }),
-      'Pausable: not paused',
-    );
+    await expectRevert(bulkCheckout.unpause({ from: owner }), 'Pausable: not paused');
 
     // Pause it and make sure we can no longer send donations
     await bulkCheckout.pause({ from: owner });
@@ -221,7 +216,7 @@ describe('BulkCheckout', () => {
     const donations = [{ token: ETH_ADDRESS, amount: toWei('5'), dest: grant1 }];
     await expectRevert(
       bulkCheckout.donate(donations, { from: user, value: toWei('5') }),
-      'Pausable: paused',
+      'Pausable: paused'
     );
 
     // Unpause and make sure everything still works
@@ -232,18 +227,12 @@ describe('BulkCheckout', () => {
   it('does not let anyone except the owner pause the contract', async () => {
     // Contract not paused. Make sure user cannot pause it
     expect(await bulkCheckout.paused()).to.equal(false);
-    await expectRevert(
-      bulkCheckout.pause({ from: user }),
-      'Ownable: caller is not the owner',
-    );
+    await expectRevert(bulkCheckout.pause({ from: user }), 'Ownable: caller is not the owner');
 
     // Pause contract and make sure user cannot unpause it
     await bulkCheckout.pause({ from: owner });
     expect(await bulkCheckout.paused()).to.equal(true);
-    await expectRevert(
-      bulkCheckout.unpause({ from: user }),
-      'Ownable: caller is not the owner',
-    );
+    await expectRevert(bulkCheckout.unpause({ from: user }), 'Ownable: caller is not the owner');
   });
 
   it('lets only the owner recover stray tokens accidentally sent to the contract', async () => {
@@ -254,7 +243,7 @@ describe('BulkCheckout', () => {
     // Make sure user cannot withdrawn the tokens
     await expectRevert(
       bulkCheckout.withdrawToken(dai.address, withdrawal, { from: user }),
-      'Ownable: caller is not the owner',
+      'Ownable: caller is not the owner'
     );
 
     // Make sure owner can withdraw
@@ -283,7 +272,7 @@ describe('BulkCheckout', () => {
     // Make sure user cannot withdrawn the ETH
     await expectRevert(
       bulkCheckout.withdrawEther(withdrawal, { from: user }),
-      'Ownable: caller is not the owner',
+      'Ownable: caller is not the owner'
     );
 
     // Make sure owner can withdraw

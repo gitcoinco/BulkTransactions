@@ -12,17 +12,21 @@ module.exports = {
       networkId: '*',
     },
     rinkeby: {
-      provider: () => new HDWalletProvider(
-        process.env.MNEMONIC_RINKEBY, `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`,
-      ),
+      provider: () =>
+        new HDWalletProvider(
+          process.env.MNEMONIC_RINKEBY,
+          `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`
+        ),
       networkId: 4,
       gasPrice: 10e9,
       gas: 5e6,
     },
     mainnet: {
-      provider: () => new HDWalletProvider(
-        process.env.MNEMONIC_MAINNET, `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
-      ),
+      provider: () =>
+        new HDWalletProvider(
+          process.env.MNEMONIC_MAINNET,
+          `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`
+        ),
       networkId: 1,
       gasPrice: 35e9, // 35 gwei
       gas: 5e6,

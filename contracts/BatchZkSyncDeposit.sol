@@ -12,13 +12,20 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+
 /**
  * @notice Interface for the zkSync contract
  */
 interface IZkSync {
   function depositETH(address _franklinAddr) external;
-  function depositERC20(IERC20 _token, uint104 _amount, address _franklinAddr) external;
+
+  function depositERC20(
+    IERC20 _token,
+    uint104 _amount,
+    address _franklinAddr
+  ) external;
 }
+
 
 /**
  * @notice Enables batch deposits of multiple tokens into the zkSync contract with one transaction
@@ -26,7 +33,7 @@ interface IZkSync {
 contract BatchZkSyncDeposit is Ownable, Pausable, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
-   // Placeholder token address to represent ETH deposits
+  // Placeholder token address to represent ETH deposits
   IERC20 public constant ETH_TOKEN_PLACHOLDER = IERC20(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
   // Instance of the zkSync contract
