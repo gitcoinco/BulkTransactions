@@ -10,7 +10,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+// import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 
 /**
@@ -30,7 +30,7 @@ interface IZkSync {
 /**
  * @notice Enables batch deposits of multiple tokens into the zkSync contract with one transaction
  */
-contract BatchZkSyncDeposit is Ownable, Pausable, ReentrancyGuard {
+contract BatchZkSyncDeposit is Ownable, Pausable {
   using SafeERC20 for IERC20;
 
   // Placeholder token address to represent ETH deposits
@@ -81,13 +81,14 @@ contract BatchZkSyncDeposit is Ownable, Pausable, ReentrancyGuard {
   function deposit(address _recipient, Deposit[] calldata _deposits)
     external
     payable
-    nonReentrant
+    // nonReentrant
     whenNotPaused
   {
     for (uint256 i = 0; i < _deposits.length; i++) {
       emit DepositMade(_deposits[i].token, _deposits[i].amount, msg.sender);
       if (_deposits[i].token != ETH_TOKEN_PLACHOLDER) {
         // Token deposit
+        _deposits[i].token.safeTransferFrom(msg.sender, address(this), _deposits[i].amount);
         zkSync.depositERC20(_deposits[i].token, _deposits[i].amount, _recipient);
       } else {
         // ETH deposit

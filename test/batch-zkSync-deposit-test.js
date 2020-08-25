@@ -10,7 +10,7 @@ const SelfDestruct = contract.fromArtifact('SelfDestruct');
 const MAX_UINT256 = constants.MAX_UINT256.toString();
 const { toWei } = web3.utils;
 
-const defaultTokenAmount = toWei('100');
+const defaultTokenAmount = toWei('25');
 
 // List of tokens that can be used with zkSync on mainnet
 const acceptedTokens = [
@@ -88,7 +88,7 @@ describe('BatchZkSyncDeposit', () => {
     dai.transfer(user, defaultTokenAmount, { from: addresses.exchange });
     expect(await dai.balanceOf(user)).to.be.bignumber.equal(defaultTokenAmount);
 
-    // Deploy bulk checkout contract
+    // Deploy batchZkSyncDeposit contract
     batchZkSyncDeposit = await BatchZkSyncDeposit.new(addresses.zkSync, acceptedTokens, {
       from: owner,
     });
@@ -103,17 +103,17 @@ describe('BatchZkSyncDeposit', () => {
   });
 
   // ======================================= Initialization ========================================
-  it('should see the deployed BatchZkSyncDeposit contract', async () => {
+  it.skip('should see the deployed BatchZkSyncDeposit contract', async () => {
     expect(batchZkSyncDeposit.address.startsWith('0x')).to.be.true;
     expect(batchZkSyncDeposit.address.length).to.equal(42);
   });
 
-  it('sets the owner upon deployment', async () => {
+  it.skip('sets the owner upon deployment', async () => {
     expect(await batchZkSyncDeposit.owner()).to.equal(owner);
   });
 
   // ======================================= Batch Deposits ========================================
-  it.skip('lets the user submit a single ETH deposit', async () => {
+  it('lets the user submit a single ETH deposit', async () => {
     const deposit = [{ token: addresses.ETH, amount: toWei('5') }];
     const receipt = await batchZkSyncDeposit.deposit(user, deposit, {
       from: user,
@@ -122,38 +122,35 @@ describe('BatchZkSyncDeposit', () => {
     expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: toWei('5'), user });
   });
 
-  it.skip('lets the user submit a single token deposit', async () => {
-    const deposit = [{ token: addresses.DAI, amount: toWei('5') }];
-    const receipt = await batchZkSyncDeposit.deposit(user, deposit, {
-      from: user,
-      value: toWei('5'),
-    });
-    expectEvent(receipt, 'DepositMade', { token: addresses.dai, amount: toWei('5'), user });
+  it('lets the user submit a single token deposit', async () => {
+    const deposit = [{ token: addresses.DAI, amount: '1' }];
+    const receipt = await batchZkSyncDeposit.deposit(user, deposit, { from: user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.DAI, amount: '1', user });
   });
 
   it.skip('lets the user submit an ETH + token batch deposit', async () => {
-    const deposit = [{ token: addresses.ETH, amount: toWei('5') }];
+    // TODO
   });
 
   it.skip('lets the user submit a multiple token batch deposit', async () => {
-    const deposit = [{ token: addresses.ETH, amount: toWei('5') }];
+    // TODO
   });
 
   // ======================================== Admin Actions ========================================
-  it('lets ownership be transferred by the owner', async () => {
+  it.skip('lets ownership be transferred by the owner', async () => {
     expect(await batchZkSyncDeposit.owner()).to.equal(owner);
     await batchZkSyncDeposit.transferOwnership(user, { from: owner });
     expect(await batchZkSyncDeposit.owner()).to.equal(user);
   });
 
-  it('does not let anyone except the owner transfer ownership', async () => {
+  it.skip('does not let anyone except the owner transfer ownership', async () => {
     await expectRevert(
       batchZkSyncDeposit.transferOwnership(user, { from: user }),
       'Ownable: caller is not the owner'
     );
   });
 
-  it('lets the owner pause and unpause the contract', async () => {
+  it.skip('lets the owner pause and unpause the contract', async () => {
     // Contract is unpaused, so make sure we cannot call unpause
     expect(await batchZkSyncDeposit.paused()).to.equal(false);
     await expectRevert(batchZkSyncDeposit.unpause({ from: owner }), 'Pausable: not paused');
@@ -172,7 +169,7 @@ describe('BatchZkSyncDeposit', () => {
     await batchZkSyncDeposit.deposit(user, deposit, { from: user, value: toWei('5') });
   });
 
-  it('does not let anyone except the owner pause the contract', async () => {
+  it.skip('does not let anyone except the owner pause the contract', async () => {
     // Contract is unpaused, so make sure user cannot pause it
     expect(await batchZkSyncDeposit.paused()).to.equal(false);
     await expectRevert(

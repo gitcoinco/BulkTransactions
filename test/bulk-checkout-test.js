@@ -44,7 +44,7 @@ const revertToSnapShot = (stateId) =>
     );
   });
 
-describe('BulkCheckout', () => {
+describe.skip('BulkCheckout', () => {
   const [owner, user, grant1, grant2, grant3, withdrawal] = accounts;
 
   let stateId;
