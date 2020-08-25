@@ -2,6 +2,12 @@
 
 Smart contracts for Gitcoin grants bulk checkout functionality
 
+NOTES:
+
+- BulkCheckout was compiled with 0.6.7
+- Need 0.6.8 for BatchZkSyncDeposit (see comments in constructor)
+- Set up .env file since we fork mainnet for the zkSync tests
+
 ## Development
 
 1. Install dependencies with `npm install`
