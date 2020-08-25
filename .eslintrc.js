@@ -20,12 +20,11 @@ module.exports = {
   extends: [
     // Base ESLint recommended rules
     // 'eslint:recommended',
-    'airbnb-base',
+    'prettier',
     'plugin:chai-friendly/recommended',
   ],
 
-  plugins: [
-  ],
+  plugins: [],
 
   globals: {
     ga: true, // Google Analytics
@@ -51,13 +50,18 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'prefer-promise-reject-errors': 'off',
 
-
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
     // Max line length of 100 characters, except for lines with comments or strings
-    'max-len': ['error', {
-      code: 100, ignoreComments: true, ignoreTrailingComments: true, ignoreStrings: true,
-    }],
+    'max-len': [
+      'error',
+      {
+        code: 100,
+        ignoreComments: true,
+        ignoreTrailingComments: true,
+        ignoreStrings: true,
+      },
+    ],
   },
 };
