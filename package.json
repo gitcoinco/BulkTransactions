@@ -22,21 +22,22 @@
   "homepage": "https://github.com/gitcoinco/BulkTransactions#readme",
   "devDependencies": {
     "@openzeppelin/cli": "^2.8.2",
-    "@openzeppelin/contracts": "^3.0.1",
+    "@openzeppelin/contracts": "^3.1.0",
     "@openzeppelin/test-environment": "^0.1.4",
-    "@openzeppelin/test-helpers": "^0.5.5",
+    "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.2.0",
-    "eslint": "^7.1.0",
+    "eslint": "^7.7.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-chai-friendly": "^0.6.0",
-    "eslint-plugin-import": "^2.20.2",
-    "mocha": "^7.2.0",
-    "prettier": "^2.0.5",
-    "prettier-plugin-solidity": "^1.0.0-alpha.52",
-    "solhint": "^3.0.0"
+    "eslint-plugin-import": "^2.22.0",
+    "ganache-core": "^2.11.2",
+    "mocha": "^8.1.2",
+    "prettier": "^2.1.0",
+    "prettier-plugin-solidity": "^1.0.0-alpha.56",
+    "solhint": "^3.2.0"
   },
   "dependencies": {
-    "@truffle/hdwallet-provider": "^1.0.35",
+    "@truffle/hdwallet-provider": "^1.0.42",
     "dotenv": "^8.2.0"
   }
 }
