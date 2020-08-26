@@ -15,7 +15,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-
 contract BulkCheckout is Ownable, Pausable, ReentrancyGuard {
   using Address for address payable;
   using SafeMath for uint256;

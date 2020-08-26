@@ -1,16 +1,16 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const { balance, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const addresses = require('../addresses.json');
 
 const BatchZkSyncDeposit = contract.fromArtifact('batchZkSyncDeposit');
 const TestToken = contract.fromArtifact('TestToken');
-const SelfDestruct = contract.fromArtifact('SelfDestruct');
 
 const MAX_UINT256 = constants.MAX_UINT256.toString();
 const { toWei } = web3.utils;
 
 const defaultTokenAmount = toWei('25');
+const defaultEthAmount = toWei('5');
 
 // List of tokens that can be used with zkSync on mainnet
 const acceptedTokens = [
@@ -35,58 +35,24 @@ const acceptedTokens = [
   addresses.HEX,
 ];
 
-// Define helper function to revert token/ETH balances after each test. This simplifies
-// testing since we no longer have to track balances between tests
-// More info at: https://github.com/trufflesuite/truffle/issues/888 and https://medium.com/fluidity/standing-the-time-of-test-b906fcc374a9
-const takeSnapshot = () =>
-  new Promise((resolve, reject) => {
-    web3.currentProvider.send(
-      {
-        jsonrpc: '2.0',
-        method: 'evm_snapshot',
-        id: new Date().getTime(),
-      },
-      (err, snapshotId) => {
-        if (err) return reject(err);
-        return resolve(snapshotId);
-      }
-    );
-  });
-
-const revertToSnapShot = (stateId) =>
-  new Promise((resolve, reject) => {
-    web3.currentProvider.send(
-      {
-        jsonrpc: '2.0',
-        method: 'evm_revert',
-        params: [stateId],
-        id: new Date().getTime(),
-      },
-      (err, result) => {
-        if (err) return reject(err);
-        return resolve(result);
-      }
-    );
-  });
-
 describe('BatchZkSyncDeposit', () => {
-  const [owner, user, grant1, withdrawal] = accounts;
+  const [owner, user] = accounts;
 
-  let stateId;
   let batchZkSyncDeposit;
   let dai;
-  let usdc;
+  let bat;
+  let mkr;
 
   beforeEach(async () => {
-    // Save current ganache state
-    stateId = (await takeSnapshot()).result;
-
     // Get token instances
     dai = await TestToken.at(addresses.DAI);
+    bat = await TestToken.at(addresses.BAT);
+    mkr = await TestToken.at(addresses.MKR);
 
-    // Send DAI to the user
-    dai.transfer(user, defaultTokenAmount, { from: addresses.exchange });
-    expect(await dai.balanceOf(user)).to.be.bignumber.equal(defaultTokenAmount);
+    // Send DAI and BAT to the user
+    await dai.transfer(user, defaultTokenAmount, { from: addresses.exchange });
+    await bat.transfer(user, defaultTokenAmount, { from: addresses.exchange });
+    await mkr.transfer(user, defaultTokenAmount, { from: addresses.exchange });
 
     // Deploy batchZkSyncDeposit contract
     batchZkSyncDeposit = await BatchZkSyncDeposit.new(addresses.zkSync, acceptedTokens, {
@@ -94,63 +60,81 @@ describe('BatchZkSyncDeposit', () => {
     });
 
     // Approve batchZkSyncDeposit contract to spend our tokens
-    dai.approve(batchZkSyncDeposit.address, MAX_UINT256, { from: user });
-  });
-
-  afterEach(async () => {
-    // Revert to restore balances to default
-    await revertToSnapShot(stateId);
+    await dai.approve(batchZkSyncDeposit.address, MAX_UINT256, { from: user });
+    await bat.approve(batchZkSyncDeposit.address, MAX_UINT256, { from: user });
+    await mkr.approve(batchZkSyncDeposit.address, MAX_UINT256, { from: user });
   });
 
   // ======================================= Initialization ========================================
-  it.skip('should see the deployed BatchZkSyncDeposit contract', async () => {
+  it('should see the deployed BatchZkSyncDeposit contract', async () => {
     expect(batchZkSyncDeposit.address.startsWith('0x')).to.be.true;
     expect(batchZkSyncDeposit.address.length).to.equal(42);
   });
 
-  it.skip('sets the owner upon deployment', async () => {
+  it('sets the owner upon deployment', async () => {
     expect(await batchZkSyncDeposit.owner()).to.equal(owner);
   });
 
   // ======================================= Batch Deposits ========================================
   it('lets the user submit a single ETH deposit', async () => {
-    const deposit = [{ token: addresses.ETH, amount: toWei('5') }];
+    const deposit = [{ token: addresses.ETH, amount: defaultEthAmount }];
     const receipt = await batchZkSyncDeposit.deposit(user, deposit, {
       from: user,
-      value: toWei('5'),
+      value: defaultEthAmount,
     });
-    expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: toWei('5'), user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: defaultEthAmount, user });
   });
 
   it('lets the user submit a single token deposit', async () => {
-    const deposit = [{ token: addresses.DAI, amount: '1' }];
+    const deposit = [{ token: addresses.DAI, amount: defaultTokenAmount }];
     const receipt = await batchZkSyncDeposit.deposit(user, deposit, { from: user });
-    expectEvent(receipt, 'DepositMade', { token: addresses.DAI, amount: '1', user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.DAI, amount: defaultTokenAmount, user });
   });
 
-  it.skip('lets the user submit an ETH + token batch deposit', async () => {
-    // TODO
+  it('lets the user submit an ETH + token batch deposit', async () => {
+    const deposit = [
+      { token: addresses.ETH, amount: defaultEthAmount },
+      { token: addresses.DAI, amount: defaultTokenAmount },
+      { token: addresses.BAT, amount: defaultTokenAmount },
+    ];
+    const receipt = await batchZkSyncDeposit.deposit(user, deposit, {
+      from: user,
+      value: defaultEthAmount,
+    });
+    expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: defaultEthAmount, user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.DAI, amount: defaultTokenAmount, user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.BAT, amount: defaultTokenAmount, user });
   });
 
-  it.skip('lets the user submit a multiple token batch deposit', async () => {
-    // TODO
+  it('lets the user submit a multiple token batch deposit', async () => {
+    const deposit = [
+      { token: addresses.DAI, amount: defaultTokenAmount },
+      { token: addresses.BAT, amount: defaultTokenAmount },
+      { token: addresses.MKR, amount: defaultTokenAmount },
+    ];
+    const receipt = await batchZkSyncDeposit.deposit(user, deposit, {
+      from: user,
+    });
+    expectEvent(receipt, 'DepositMade', { token: addresses.DAI, amount: defaultTokenAmount, user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.BAT, amount: defaultTokenAmount, user });
+    expectEvent(receipt, 'DepositMade', { token: addresses.MKR, amount: defaultTokenAmount, user });
   });
 
   // ======================================== Admin Actions ========================================
-  it.skip('lets ownership be transferred by the owner', async () => {
+  it('lets ownership be transferred by the owner', async () => {
     expect(await batchZkSyncDeposit.owner()).to.equal(owner);
     await batchZkSyncDeposit.transferOwnership(user, { from: owner });
     expect(await batchZkSyncDeposit.owner()).to.equal(user);
   });
 
-  it.skip('does not let anyone except the owner transfer ownership', async () => {
+  it('does not let anyone except the owner transfer ownership', async () => {
     await expectRevert(
       batchZkSyncDeposit.transferOwnership(user, { from: user }),
       'Ownable: caller is not the owner'
     );
   });
 
-  it.skip('lets the owner pause and unpause the contract', async () => {
+  it('lets the owner pause and unpause the contract', async () => {
     // Contract is unpaused, so make sure we cannot call unpause
     expect(await batchZkSyncDeposit.paused()).to.equal(false);
     await expectRevert(batchZkSyncDeposit.unpause({ from: owner }), 'Pausable: not paused');
@@ -169,7 +153,7 @@ describe('BatchZkSyncDeposit', () => {
     await batchZkSyncDeposit.deposit(user, deposit, { from: user, value: toWei('5') });
   });
 
-  it.skip('does not let anyone except the owner pause the contract', async () => {
+  it('does not let anyone except the owner pause the contract', async () => {
     // Contract is unpaused, so make sure user cannot pause it
     expect(await batchZkSyncDeposit.paused()).to.equal(false);
     await expectRevert(
@@ -182,6 +166,31 @@ describe('BatchZkSyncDeposit', () => {
     expect(await batchZkSyncDeposit.paused()).to.equal(true);
     await expectRevert(
       batchZkSyncDeposit.unpause({ from: user }),
+      'Ownable: caller is not the owner'
+    );
+  });
+
+  it('lets the owner modify token allowances', async () => {
+    // Confirm initial allowance set in construction
+    const fullAllowance = await dai.allowance(batchZkSyncDeposit.address, addresses.zkSync);
+    expect(fullAllowance).to.be.bignumber.equal(constants.MAX_UINT256);
+
+    // Remove the full allowance
+    const revokeTx = await batchZkSyncDeposit.setAllowance(addresses.DAI, '0', { from: owner });
+    expectEvent(revokeTx, 'AllowanceSet', { token: addresses.DAI, amount: '0' });
+    const emptyAllowance = await dai.allowance(batchZkSyncDeposit.address, addresses.zkSync);
+    expect(emptyAllowance).to.be.bignumber.equal('0');
+
+    // Restore allowance to an arbitrary value
+    const approveTx = await batchZkSyncDeposit.setAllowance(addresses.DAI, '100', { from: owner });
+    expectEvent(approveTx, 'AllowanceSet', { token: addresses.DAI, amount: '100' });
+    const partialAllowance = await dai.allowance(batchZkSyncDeposit.address, addresses.zkSync);
+    expect(partialAllowance).to.be.bignumber.equal('100');
+  });
+
+  it('does not let anyone except the owner add or revoke token allowances', async () => {
+    await expectRevert(
+      batchZkSyncDeposit.setAllowance(addresses.DAI, '100', { from: user }),
       'Ownable: caller is not the owner'
     );
   });
