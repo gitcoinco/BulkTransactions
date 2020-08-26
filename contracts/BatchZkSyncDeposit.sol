@@ -10,8 +10,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-// import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @notice Interface for the zkSync contract
@@ -26,11 +25,10 @@ interface IZkSync {
   ) external;
 }
 
-
 /**
  * @notice Enables batch deposits of multiple tokens into the zkSync contract with one transaction
  */
-contract BatchZkSyncDeposit is Ownable, Pausable {
+contract BatchZkSyncDeposit is Ownable, Pausable, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
   // Placeholder token address to represent ETH deposits
@@ -47,6 +45,9 @@ contract BatchZkSyncDeposit is Ownable, Pausable {
 
   // Emitted on each deposit
   event DepositMade(IERC20 indexed token, uint104 indexed amount, address indexed user);
+
+  // Emitted when allowances are changed
+  event AllowanceSet(IERC20 indexed token, uint256 amount);
 
   /**
    * @notice Sets address of the zkSync contract and approves zkSync contract to spend our tokens
@@ -66,9 +67,15 @@ contract BatchZkSyncDeposit is Ownable, Pausable {
     }
   }
 
-  // function approveToken(address[] calldata _token) external onlyOwner {
-  //   // TODO
-  // }
+  /**
+   * @notice Sets allowance of zkSync to spend the specified token
+   * @param _token Address of token to set allowance for
+   * @param _amount Value to set allowance to
+   */
+  function setAllowance(IERC20 _token, uint256 _amount) external onlyOwner {
+    _token.safeApprove(address(zkSync), _amount);
+    emit AllowanceSet(_token, _amount);
+  }
 
   /**
    * @notice Performs deposits to the zkSync contract
@@ -81,7 +88,7 @@ contract BatchZkSyncDeposit is Ownable, Pausable {
   function deposit(address _recipient, Deposit[] calldata _deposits)
     external
     payable
-    // nonReentrant
+    nonReentrant
     whenNotPaused
   {
     for (uint256 i = 0; i < _deposits.length; i++) {

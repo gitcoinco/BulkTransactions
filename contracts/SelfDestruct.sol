@@ -1,6 +1,5 @@
 pragma solidity ^0.6.2;
 
-
 /**
  * @notice Used for forcibly sending ETH to BulkCheckout for testing
  */
