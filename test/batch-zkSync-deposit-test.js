@@ -1,5 +1,5 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { balance, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const addresses = require('../addresses.json');
 
@@ -83,6 +83,9 @@ describe('BatchZkSyncDeposit', () => {
       value: defaultEthAmount,
     });
     expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: defaultEthAmount, user });
+    
+    const contractEthBalance = (await balance.current(batchZkSyncDeposit.address)).toString();
+    expect(contractEthBalance).to.be.bignumber.equal('0');
   });
 
   it('lets the user submit a single token deposit', async () => {
@@ -104,6 +107,9 @@ describe('BatchZkSyncDeposit', () => {
     expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: defaultEthAmount, user });
     expectEvent(receipt, 'DepositMade', { token: addresses.DAI, amount: defaultTokenAmount, user });
     expectEvent(receipt, 'DepositMade', { token: addresses.BAT, amount: defaultTokenAmount, user });
+
+    const contractEthBalance = (await balance.current(batchZkSyncDeposit.address)).toString();
+    expect(contractEthBalance).to.be.bignumber.equal('0');
   });
 
   it('lets the user submit a multiple token batch deposit', async () => {

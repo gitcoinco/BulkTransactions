@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @notice Interface for the zkSync contract
  */
 interface IZkSync {
-  function depositETH(address _franklinAddr) external;
+  function depositETH(address _franklinAddr) external payable;
 
   function depositERC20(
     IERC20 _token,
@@ -101,7 +101,7 @@ contract BatchZkSyncDeposit is Ownable, Pausable, ReentrancyGuard {
         // ETH deposit
         // Make sure the value sent equals the specified deposit amount
         require(msg.value == _deposits[i].amount, "BatchZkSyncDeposit: ETH value mismatch");
-        zkSync.depositETH(_recipient);
+        zkSync.depositETH{value: msg.value}(_recipient);
       }
     }
   }
