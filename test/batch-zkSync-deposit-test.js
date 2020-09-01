@@ -3,7 +3,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 const addresses = require('../addresses.json');
 
-const BatchZkSyncDeposit = contract.fromArtifact('batchZkSyncDeposit');
+const BatchZkSyncDeposit = contract.fromArtifact('BatchZkSyncDeposit');
 const TestToken = contract.fromArtifact('TestToken');
 
 const MAX_UINT256 = constants.MAX_UINT256.toString();
