@@ -83,7 +83,7 @@ describe('BatchZkSyncDeposit', () => {
       value: defaultEthAmount,
     });
     expectEvent(receipt, 'DepositMade', { token: addresses.ETH, amount: defaultEthAmount, user });
-    
+
     const contractEthBalance = (await balance.current(batchZkSyncDeposit.address)).toString();
     expect(contractEthBalance).to.be.bignumber.equal('0');
   });
