@@ -4,9 +4,9 @@
   "description": "Smart contracts for Gitcoin grants bulk checkout functionality",
   "main": "index.js",
   "scripts": {
-    "compile": "npx oz compile --solc-version 0.6.8 --optimizer off",
+    "compile": "npx oz compile --solc-version 0.6.12 --optimizer off",
     "compile-bulkCheckout": "npx oz compile --solc-version 0.6.7 --optimizer off",
-    "compile-batchZkSync": "npx oz compile --solc-version 0.6.8 --optimizer off",
+    "compile-batchZkSync": "npx oz compile --solc-version 0.6.12 --optimizer off",
     "deploy": "npx oz deploy --skip-compile",
     "test": "npm run compile && mocha --exit --timeout 0 test/*-test.js",
     "lint": "eslint --ext .js,.ts ./; npx solhint **/*.sol",
