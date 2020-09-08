@@ -28,9 +28,10 @@ deposit all three currencies into zkSync. `BatchZkSyncDeposit.sol` improves the 
 and reduces gas costs by batching these deposit calls, so all three deposits are executed with
 just one L1 transaction (ignoring the required ERC20 approval transactions).
 
-This contract has not been deployed yet. It must be compiled with Solidity 0.6.8 or later due to
-a constructor-related bug fix in 0.6.8. For more details, see the comments within the
-constructor of `BatchZkSyncDeposit.sol`.
+This contract has been deployed on both Mainnet and Rinkeby at 
+[0x9D37F793E5eD4EbD66d62D505684CD9f756504F6](https://etherscan.io/address/0x9D37F793E5eD4EbD66d62D505684CD9f756504F6)
+and was compiled with Solidity 0.6.12. 
+
 
 ## Development
 

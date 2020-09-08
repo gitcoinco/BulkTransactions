@@ -8,6 +8,13 @@
         "kind": "NonProxy",
         "bytecodeHash": "8f7494d92900fd89212fb7ad146890e23550f15d5b269922b212a86f75fee725"
       }
+    ],
+    "gc-bulk-checkout-contracts/BatchZkSyncDeposit": [
+      {
+        "address": "0x9D37F793E5eD4EbD66d62D505684CD9f756504F6",
+        "kind": "NonProxy",
+        "bytecodeHash": "14c89c1ceb628507266124c89e5e9d5243ac956e48d1a597ecce69d092637924"
+      }
     ]
   },
   "manifestVersion": "2.2"
