@@ -16,8 +16,12 @@ This repository contains smart contracts used during the Gitcoin grants checkout
 
 `BulkCheckout.sol` improves the checkout UX and reduces gas costs by enabling users to donate
 to multiple grants with one L1 transaction (ignoring the required ERC20 approval transactions).
-This contract has been deployed on both Mainnet and Rinkeby at
-[0x7d655c57f71464B6f83811C55D84009Cd9f5221C](https://etherscan.io/address/0x7d655c57f71464B6f83811C55D84009Cd9f5221C) and was compiled with Solidity 0.6.7.
+This contract has been deployed on the following networks,
+
+- Ethereum Mainnet and Rinkeby at [0x7d655c57f71464B6f83811C55D84009Cd9f5221C](https://etherscan.io/address/0x7d655c57f71464B6f83811C55D84009Cd9f5221C)
+- Polygon (MATIC) Mumbai Testnet at [0x3E2849E2A489C8fE47F52847c42aF2E8A82B9973](https://mumbai.polygonscan.com/address/0x3E2849E2A489C8fE47F52847c42aF2E8A82B9973)
+
+It was compiled with Solidity 0.6.7.
 
 ### Batch ZkSync Deposit
 
@@ -39,9 +43,10 @@ and was compiled with Solidity 0.6.12.
 
 1. Create a file called `.env` with the following contents:
    ```bash
-   INFURA_ID=yourInfuraId
-   MNEMONIC_RINKEBY="your mnemonic for development" # only needed for deployment
+   MNEMONIC_TESTNET="your mnemonic for development" # only needed for deployment
    MNEMONIC_MAINNET="your mnemonic for production" # only needed for deployment
+   PROVIDER_URL_TESTNET="your provider url for development" # only needed for deployment
+   PROVIDER_URL_MAINNET="your provider url for production" # only needed for deployment
    ```
 2. Install dependencies with `yarn`
 3. Run tests with `yarn test`

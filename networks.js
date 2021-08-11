@@ -14,18 +14,30 @@ module.exports = {
     rinkeby: {
       provider: () =>
         new HDWalletProvider(
-          process.env.MNEMONIC_RINKEBY,
-          `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`
+          process.env.MNEMONIC_TESTNET,
+          process.env.PROVIDER_URL_TESTNET
         ),
       networkId: 4,
       gasPrice: 10e9,
       gas: 5e6,
     },
+    mumbai: {
+      provider: () =>
+        new HDWalletProvider(
+          process.env.MNEMONIC_TESTNET,
+          process.env.PROVIDER_URL_TESTNET
+        ),
+      networkId: 80001,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      gas: 2e6,
+    },
     mainnet: {
       provider: () =>
         new HDWalletProvider(
           process.env.MNEMONIC_MAINNET,
-          `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`
+          process.env.PROVIDER_URL_MAINNET
         ),
       networkId: 1,
       gasPrice: 35e9, // 35 gwei
