@@ -20,6 +20,7 @@ This contract has been deployed on the following networks,
 
 - Ethereum Mainnet and Rinkeby at [0x7d655c57f71464B6f83811C55D84009Cd9f5221C](https://etherscan.io/address/0x7d655c57f71464B6f83811C55D84009Cd9f5221C)
 - Polygon (MATIC) Mumbai Testnet at [0x3E2849E2A489C8fE47F52847c42aF2E8A82B9973](https://mumbai.polygonscan.com/address/0x3E2849E2A489C8fE47F52847c42aF2E8A82B9973)
+- Polygon (MATIC) Mainnet at [0xb99080b9407436eBb2b8Fe56D45fFA47E9bb8877](https://polygonscan.com/address/0xb99080b9407436eBb2b8Fe56D45fFA47E9bb8877)
 
 It was compiled with Solidity 0.6.7.
 
@@ -43,10 +44,9 @@ and was compiled with Solidity 0.6.12.
 
 1. Create a file called `.env` with the following contents:
    ```bash
+   INFURA_ID=yourInfuraId
    MNEMONIC_TESTNET="your mnemonic for development" # only needed for deployment
    MNEMONIC_MAINNET="your mnemonic for production" # only needed for deployment
-   PROVIDER_URL_TESTNET="your provider url for development" # only needed for deployment
-   PROVIDER_URL_MAINNET="your provider url for production" # only needed for deployment
    ```
 2. Install dependencies with `yarn`
 3. Run tests with `yarn test`
