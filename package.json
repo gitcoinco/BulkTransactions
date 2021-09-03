@@ -8,6 +8,7 @@
     "compile-bulkCheckout": "npx oz compile --solc-version 0.6.7 --optimizer off",
     "compile-batchZkSync": "npx oz compile --solc-version 0.6.12 --optimizer off",
     "deploy": "npx oz deploy --skip-compile",
+    "verify": "npx oz verify",
     "test": "npm run compile && mocha --exit --timeout 0 test/*-test.js",
     "lint": "eslint --ext .js,.ts ./; npx solhint **/*.sol",
     "prettier": "prettier --write ."
@@ -39,7 +40,7 @@
     "solhint": "^3.2.0"
   },
   "dependencies": {
-    "@truffle/hdwallet-provider": "^1.0.42",
+    "@truffle/hdwallet-provider": "^1.4.0",
     "dotenv": "^8.2.0"
   }
 }
